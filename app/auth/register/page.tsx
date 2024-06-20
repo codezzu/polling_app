@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 const Register = () => {
   const [username, setUsername] = useState('');
@@ -22,7 +23,8 @@ const Register = () => {
     if (response.ok) {
       router.push('/auth/login');
     } else {
-      alert('Registration failed');
+      const errorData = await response.json();
+      alert(`Registration failed: ${errorData.error}`);
     }
   };
 
@@ -32,11 +34,11 @@ const Register = () => {
       <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-4">
         <div className="mb-4">
           <label className="block mb-1" htmlFor="username">Kullanıcı Adı</label>
-          <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full border border-gray-400 p-2" />
+          <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full border border-gray-400 p-2 text-black" />
         </div>
         <div className="mb-4">
           <label className="block mb-1" htmlFor="password">Şifre</label>
-          <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border border-gray-400 p-2" />
+          <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full border border-gray-400 p-2 text-black" />
         </div>
         <button type="submit" className="bg-blue-500 text-white py-2 px-4 rounded">Kayıt Ol</button>
       </form>

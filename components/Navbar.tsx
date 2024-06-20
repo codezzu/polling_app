@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 interface User {
   username: string;
+  isAdmin: boolean;
 }
 
 const Navbar = () => {
@@ -14,15 +16,17 @@ const Navbar = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const userCookie = document.cookie.split('; ').find((row) => row.startsWith('user='));
+      const userCookie = Cookies.get('user');
       if (userCookie) {
-        setUser(JSON.parse(decodeURIComponent(userCookie.split('=')[1])));
+        const parsedUser = JSON.parse(userCookie);
+        setUser(parsedUser);
       }
     }
   }, []);
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
+    Cookies.remove('user');
     setUser(null);
     router.push('/');
   };
@@ -33,6 +37,7 @@ const Navbar = () => {
       <div>
         {user ? (
           <div className="flex items-center">
+            {user.isAdmin && <Link href="/admin/dashboard" className="text-white mr-4">Admin Paneli</Link>}
             <span className="text-white mr-4">Merhaba {user.username}, hoşgeldin!</span>
             <button onClick={handleLogout} className="bg-red-500 text-white py-1 px-2 rounded">Çıkış Yap</button>
           </div>
