@@ -1,18 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient } from '@prisma/client';
+import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 import { serialize } from 'cookie';
-
-const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { username, password } = req.body;
 
     try {
-      const user = await prisma.user.findUnique({
-        where: { username },
-      });
+      const { rows } = await sql`
+        SELECT * FROM users WHERE username = ${username}
+      `;
+      const user = rows[0];
 
       if (user && (await bcrypt.compare(password, user.password))) {
         res.setHeader('Set-Cookie', serialize('user', JSON.stringify(user), { path: '/', httpOnly: true, sameSite: 'strict' }));
